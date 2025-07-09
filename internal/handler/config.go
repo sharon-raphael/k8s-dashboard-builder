@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sharon-raphael/k8s-dashboard-builder/internal/store"
+	"gopkg.in/yaml.v3"
 )
 
 var configStore = store.NewConfigStore()
@@ -18,17 +20,32 @@ func GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"config": config})
 }
 
+// SaveConfig handles POST /api/config
 func SaveConfig(c *gin.Context) {
-	var req struct {
-		Config string `json:"config" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unable to read request body"})
 		return
 	}
-	if err := configStore.Save(req.Config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save config"})
+
+	config := string(body)
+
+	// Optional: Validate YAML syntax
+	if err := validateYAML(config); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid YAML", "details": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Config saved"})
+
+	if err := configStore.Save(config); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save config"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "saved"})
+}
+
+// validateYAML ensures the provided string is valid YAML
+func validateYAML(data string) error {
+	var tmp any
+	return yaml.Unmarshal([]byte(data), &tmp)
 }
