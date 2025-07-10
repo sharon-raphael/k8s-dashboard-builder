@@ -1,33 +1,33 @@
 import { useState, useEffect, useRef } from 'react'
 import * as yaml from 'js-yaml'
+import config from '../config.json'
 
-const sampleYaml = `config:
-  dashboards:
-  - name: "Sample Dashboard"
-    header: "Sample Dashboard configuration."
-    panels:
-    - type: "table"
-      title: "Deployment versions"
-      data_source: "kubernetes"
-      api: pods
-      query: ""
-      namespace: ""
-      columns:
-      - header: "Name"
-        field: "metadata.name"
-      - header: "Namespace"
-        field: "metadata.namespace"
-      - header: "Status"
-        field: "status.phase"
-      - header: "image"
-        field: "spec.containers[0].image"`
+const fallbackYaml = `# Kubernetes Dashboard Builder Configuration`
 
 const Config = () => {
   const [editable, setEditable] = useState(false)
-  const [yamlText, setYamlText] = useState(sampleYaml)
+  const [yamlText, setYamlText] = useState(fallbackYaml)
   const [isValidYaml, setIsValidYaml] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [apiHost, setApiHost] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        setApiHost(config.apiHost)
+
+        const res = await fetch(`${config.apiHost}/api/config`)
+        const data = await res.json()
+        setYamlText(data.config)
+      } catch (err) {
+        console.error('Error loading config from API. Using fallback.')
+        setYamlText(fallbackYaml)
+      }
+    }
+
+    loadConfig()
+  }, [])
 
   useEffect(() => {
     try {

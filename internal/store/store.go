@@ -14,7 +14,7 @@ func NewConfigStore() *ConfigStore {
 dashboards:
 - name: "Sample Dashboard"
   header: "Sample Dashboard configuration."
-  panel
+  panels:
   - type: "table"
     title: "Deployment versions"
     data_source: "kubernetes"
