@@ -1,17 +1,30 @@
-import { Routes, Route } from 'react-router-dom'
+import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Config from './pages/Config'
-import Navbar from './components/Navbar'
 
-function App() {
+const App = () => {
+  const [selectedDashboard, setSelectedDashboard] = useState<string>('')
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <Router>
+      <Navbar
+        selected={selectedDashboard}
+        setSelected={setSelectedDashboard}
+      />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              selected={selectedDashboard}
+            />
+          }
+        />
         <Route path="/config" element={<Config />} />
       </Routes>
-    </div>
+    </Router>
   )
 }
 

@@ -11,25 +11,35 @@ type ConfigStore struct {
 
 func NewConfigStore() *ConfigStore {
 	defaultConfig := `config:
-dashboards:
-- name: "Sample Dashboard"
-  header: "Sample Dashboard configuration."
-  panels:
-  - type: "table"
-    title: "Deployment versions"
-    data_source: "kubernetes"
-    api: pods
-    query: ""
-    namespace: ""
-    columns:
-    - header: "Name"
-      field: "metadata.name"
-    - header: "Namespace"
-      field: "metadata.namespace"
-    - header: "Status"
-      field: "status.phase"
-    - header: "image"
-      field: "spec.containers[0].image"`
+  dashboards:
+  - name: "pods-info"
+    header: "Pods status Dashboard"
+    panels:
+    - type: "table"
+      data_source: "kubernetes"
+      api: pods
+      query: ""
+      namespace: ""
+      columns:
+      - header: "Name"
+        field: "metadata.name"
+      - header: "Namespace"
+        field: "metadata.namespace"
+      - header: "Status"
+        field: "status.phase"
+      - header: "image"
+        field: "spec.containers[0].image"
+  - name: "nodes-info"
+    header: "Nodes Information Dashboard"
+    panels:
+    - type: "table"
+      data_source: "kubernetes"
+      api: nodes
+      query: ""
+      namespace: ""
+      columns:
+      - header: "Name"
+        field: "metadata.name"`
 
 	return &ConfigStore{
 		config: defaultConfig,
