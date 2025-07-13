@@ -1,6 +1,6 @@
 module github.com/sharon-raphael/k8s-dashboard-builder
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.3
 
@@ -34,4 +34,7 @@ require (
 	golang.org/x/text v0.26.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/api v0.33.2 // indirect
+	k8s.io/apimachinery v0.33.2 // indirect
+	k8s.io/client-go v0.33.2 // indirect
 )
