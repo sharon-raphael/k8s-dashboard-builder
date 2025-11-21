@@ -18,6 +18,7 @@ func NewConfigStore() *ConfigStore {
     - type: "table"
       data_source: "kubernetes"
       api: pods
+      version: v1
       query: ""
       namespace: ""
       columns:
@@ -35,6 +36,7 @@ func NewConfigStore() *ConfigStore {
     - type: "table"
       data_source: "kubernetes"
       api: nodes
+      version: v1
       query: ""
       namespace: ""
       columns:

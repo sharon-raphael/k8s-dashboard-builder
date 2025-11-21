@@ -11,10 +11,16 @@ func main() {
 
 	r.Use(cors.Default()) // allows all origins by default
 
+	dashboardHandler, err := handler.NewDashboardHandler()
+	if err != nil {
+		panic(err)
+	}
+
 	api := r.Group("/api")
 	{
 		api.GET("/config", handler.GetConfig)
 		api.POST("/config", handler.SaveConfig)
+		api.GET("/dashboard/:name", dashboardHandler.GetDashboardData)
 	}
 
 	r.Run(":8080")

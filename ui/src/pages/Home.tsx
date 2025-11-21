@@ -9,26 +9,46 @@ type Props = {
 
 const Home = ({ selected }: Props) => {
   const [dashboardHeader, setDashboardHeader] = useState('Welcome to the Dashboard')
+  const [columns, setColumns] = useState<any[]>([])
+  const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!selected) return
 
-    const fetchHeader = async () => {
+    const fetchData = async () => {
+      setLoading(true)
+      setError('')
       try {
-        const res = await fetch(`${config.apiHost}/api/config`)
-        const data = await res.json()
-        const parsed: any = yaml.load(data.config)
+        // 1. Fetch Config for Header (Optimally this should be one call, but keeping existing logic + new)
+        const resConfig = await fetch(`${config.apiHost}/api/config`)
+        const dataConfig = await resConfig.json()
+        const parsed: any = yaml.load(dataConfig.config)
         const dashboards = parsed?.config?.dashboards || []
         const match = dashboards.find((d: any) => d.name === selected)
         if (match) {
           setDashboardHeader(match.header || 'Dashboard')
         }
-      } catch (err) {
-        console.error('Failed to fetch config', err)
+
+        // 2. Fetch Data
+        const resData = await fetch(`${config.apiHost}/api/dashboard/${selected}`)
+        if (!resData.ok) {
+          throw new Error('Failed to fetch dashboard data')
+        }
+        const result = await resData.json()
+        setColumns(result.columns || [])
+        setData(result.data || [])
+
+      } catch (err: any) {
+        console.error('Failed to fetch dashboard', err)
+        setError(err.message)
+      } finally {
+        setLoading(false)
       }
     }
 
-    fetchHeader()
+    fetchData()
   }, [selected])
 
   return (
@@ -37,7 +57,9 @@ const Home = ({ selected }: Props) => {
         {dashboardHeader}
       </header>
 
-      <Table />
+      {loading && <div className="text-center py-4 text-gray-600 dark:text-gray-400">Loading...</div>}
+      {error && <div className="text-center py-4 text-red-600">{error}</div>}
+      {!loading && !error && <Table columns={columns} data={data} />}
     </div>
   )
 }
