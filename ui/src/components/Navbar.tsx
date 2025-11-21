@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import * as yaml from 'js-yaml'
 import config from '../config.json'
+import DarkModeToggle from './DarkModeToggle'
 
 type Props = {
   selected: string
@@ -36,29 +37,35 @@ const Navbar = ({ selected, setSelected }: Props) => {
   }, [])
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
-      <h1 className="text-2xl font-bold text-gray-800">K8s Dashboard</h1>
+    <nav className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 shadow-md transition-colors duration-200">
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-white">K8s Dashboard</h1>
 
-      {!isConfigPage && (
-        <select
-          className="border px-4 py-2 rounded text-gray-800 mx-auto"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
+      <div className="flex-1 flex justify-center">
+        {!isConfigPage && (
+          <select
+            className="border px-4 py-2 rounded text-gray-800 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            {dashboardNames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate(isConfigPage ? '/' : '/config')}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
-          {dashboardNames.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      )}
+          {isConfigPage ? 'Home' : 'Config'}
+        </button>
 
-      <button
-        onClick={() => navigate(isConfigPage ? '/' : '/config')}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        {isConfigPage ? 'Home' : 'Config'}
-      </button>
+        <DarkModeToggle />
+      </div>
     </nav>
   )
 }

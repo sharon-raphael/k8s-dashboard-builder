@@ -9,14 +9,11 @@ const Config = () => {
   const [yamlText, setYamlText] = useState(fallbackYaml)
   const [isValidYaml, setIsValidYaml] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const [apiHost, setApiHost] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        setApiHost(config.apiHost)
-
         const res = await fetch(`${config.apiHost}/api/config`)
         const data = await res.json()
         setYamlText(data.config)
@@ -116,13 +113,12 @@ const Config = () => {
 
       {/* YAML Editor */}
       <textarea
-        className={`w-full min-h-[300px] p-4 border rounded font-mono text-sm bg-white text-gray-800 ${
-          editable
-            ? isValidYaml
-              ? 'border-blue-500'
-              : 'border-red-500'
-            : 'border-gray-300'
-        }`}
+        className={`w-full min-h-[300px] p-4 border rounded font-mono text-sm bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${editable
+          ? isValidYaml
+            ? 'border-blue-500'
+            : 'border-red-500'
+          : 'border-gray-300 dark:border-gray-600'
+          }`}
         value={yamlText}
         onChange={(e) => setYamlText(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -148,11 +144,10 @@ const Config = () => {
           </button>
         ) : (
           <button
-            className={`px-4 py-2 rounded text-white ${
-              isValidYaml
-                ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
+            className={`px-4 py-2 rounded text-white ${isValidYaml
+              ? 'bg-green-600 hover:bg-green-700'
+              : 'bg-gray-400 cursor-not-allowed'
+              }`}
             onClick={() => setEditable(false)}
             disabled={!isValidYaml}
           >

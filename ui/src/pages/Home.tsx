@@ -33,7 +33,7 @@ const Home = ({ selected }: Props) => {
 
   return (
     <div>
-      <header className="text-3xl font-semibold text-center py-6 text-gray-800">
+      <header className="text-3xl font-semibold text-center py-6 text-gray-800 dark:text-white">
         {dashboardHeader}
       </header>
 
