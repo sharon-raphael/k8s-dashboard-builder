@@ -42,12 +42,13 @@ func (h *DashboardHandler) GetDashboardData(c *gin.Context) {
 		Field  string `yaml:"field" json:"field"`
 	}
 	type Panel struct {
-		Type       string   `yaml:"type"`
-		DataSource string   `yaml:"data_source"`
-		API        string   `yaml:"api"`
-		Version    string   `yaml:"version"`
-		Namespace  string   `yaml:"namespace"`
-		Columns    []Column `yaml:"columns"`
+		Type                     string   `yaml:"type"`
+		DataSource               string   `yaml:"data_source"`
+		API                      string   `yaml:"api"`
+		Version                  string   `yaml:"version"`
+		Namespace                string   `yaml:"namespace"`
+		NamespaceDropdownEnabled bool     `yaml:"namespace_dropdown_enabled" json:"namespace_dropdown_enabled"`
+		Columns                  []Column `yaml:"columns"`
 	}
 	type Dashboard struct {
 		Name   string  `yaml:"name"`
@@ -92,14 +93,22 @@ func (h *DashboardHandler) GetDashboardData(c *gin.Context) {
 		fields[i] = col.Field
 	}
 
-	data, err := h.k8sService.FetchResources(c.Request.Context(), panel.Version, panel.API, panel.Namespace, fields)
+	// Check if namespace is provided as query parameter
+	namespace := c.Query("namespace")
+	if namespace == "" {
+		namespace = panel.Namespace
+	}
+
+	data, err := h.k8sService.FetchResources(c.Request.Context(), panel.Version, panel.API, namespace, fields)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch k8s data", "details": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"columns": panel.Columns,
-		"data":    data,
+		"columns":                    panel.Columns,
+		"data":                       data,
+		"namespace_dropdown_enabled": panel.NamespaceDropdownEnabled,
+		"default_namespace":          panel.Namespace,
 	})
 }

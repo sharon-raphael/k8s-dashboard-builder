@@ -20,7 +20,8 @@ func NewConfigStore() *ConfigStore {
       api: pods
       version: v1
       query: ""
-      namespace: ""
+      namespace: "kube-infra"
+      namespace_dropdown_enabled: true
       columns:
       - header: "Name"
         field: "metadata.name"
@@ -41,7 +42,9 @@ func NewConfigStore() *ConfigStore {
       namespace: ""
       columns:
       - header: "Name"
-        field: "metadata.name"`
+        field: "metadata.name"
+      - header: "Instance Group"
+        field: "metadata.labels.instancegroup"`
 
 	return &ConfigStore{
 		config: defaultConfig,
