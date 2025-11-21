@@ -83,6 +83,23 @@ const Config = () => {
     }
   }
 
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`${config.apiHost}/api/config`, {
+        method: 'POST',
+        body: yamlText,
+      })
+      if (!res.ok) {
+        throw new Error('Failed to save config')
+      }
+      setEditable(false)
+    } catch (err: any) {
+      console.error('Failed to save config', err)
+      setErrorMessage(err.message)
+      setIsValidYaml(false) // Force error display
+    }
+  }
+
   return (
     <div className="p-6">
       {/* Header with buttons */}
@@ -113,7 +130,7 @@ const Config = () => {
 
       {/* YAML Editor */}
       <textarea
-        className={`w-full min-h-[300px] p-4 border rounded font-mono text-sm bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${editable
+        className={`w-full min-h-[600px] p-4 border rounded font-mono text-sm bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${editable
           ? isValidYaml
             ? 'border-blue-500'
             : 'border-red-500'
@@ -148,7 +165,7 @@ const Config = () => {
               ? 'bg-green-600 hover:bg-green-700'
               : 'bg-gray-400 cursor-not-allowed'
               }`}
-            onClick={() => setEditable(false)}
+            onClick={handleSave}
             disabled={!isValidYaml}
           >
             Save
