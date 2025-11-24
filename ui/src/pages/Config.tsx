@@ -1,6 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import * as yaml from 'js-yaml'
 import config from '../config.json'
+import {
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  PencilSquareIcon,
+  CheckIcon,
+  TrashIcon,
+  DocumentTextIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline'
 
 const fallbackYaml = `# Kubernetes Dashboard Builder Configuration`
 
@@ -101,83 +110,110 @@ const Config = () => {
   }
 
   return (
-    <div className="p-6">
-      {/* Header with buttons */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">YAML Configuration</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={handleImportClick}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Import
-          </button>
-          <button
-            onClick={handleExport}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Export
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".yaml,.yml"
-            className="hidden"
-            onChange={handleImportFile}
-          />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        {/* Header with buttons */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+              <DocumentTextIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Configuration</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Manage your dashboard YAML configuration</p>
+            </div>
+          </div>
+
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleImportClick}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              Import
+            </button>
+            <button
+              onClick={handleExport}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+            >
+              <ArrowUpTrayIcon className="w-4 h-4" />
+              Export
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".yaml,.yml"
+              className="hidden"
+              onChange={handleImportFile}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* YAML Editor */}
-      <textarea
-        className={`w-full min-h-[600px] p-4 border rounded font-mono text-sm bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${editable
-          ? isValidYaml
-            ? 'border-blue-500'
-            : 'border-red-500'
-          : 'border-gray-300 dark:border-gray-600'
-          }`}
-        value={yamlText}
-        onChange={(e) => setYamlText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        readOnly={!editable}
-        spellCheck={false}
-      />
-
-      {/* YAML error */}
-      {!isValidYaml && (
-        <div className="text-red-600 mt-2 text-sm font-medium">
-          Invalid YAML: {errorMessage}
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex gap-4 mt-4">
-        {!editable ? (
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => setEditable(true)}
-          >
-            Edit
-          </button>
-        ) : (
-          <button
-            className={`px-4 py-2 rounded text-white ${isValidYaml
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-gray-400 cursor-not-allowed'
+        {/* YAML Editor */}
+        <div className="relative">
+          <textarea
+            className={`w-full min-h-[600px] p-6 font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none resize-y ${!isValidYaml ? 'border-b-4 border-red-500' : ''
               }`}
-            onClick={handleSave}
-            disabled={!isValidYaml}
-          >
-            Save
-          </button>
-        )}
+            value={yamlText}
+            onChange={(e) => setYamlText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            readOnly={!editable}
+            spellCheck={false}
+          />
 
-        <button
-          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-          onClick={handleClear}
-        >
-          Clear
-        </button>
+          {!editable && (
+            <div className="absolute inset-0 bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
+              <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <PencilSquareIcon className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-600 dark:text-gray-300 font-medium">Read-only mode</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer / Actions */}
+        <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex-1">
+            {!isValidYaml && (
+              <div className="flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg border border-red-200 dark:border-red-800/50">
+                <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-medium truncate">{errorMessage}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            {!editable ? (
+              <button
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow"
+                onClick={() => setEditable(true)}
+              >
+                <PencilSquareIcon className="w-5 h-5" />
+                Edit Configuration
+              </button>
+            ) : (
+              <button
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium shadow-sm transition-all ${isValidYaml
+                    ? 'bg-green-600 hover:bg-green-700 hover:shadow'
+                    : 'bg-gray-400 cursor-not-allowed'
+                  }`}
+                onClick={handleSave}
+                disabled={!isValidYaml}
+              >
+                <CheckIcon className="w-5 h-5" />
+                Save Changes
+              </button>
+            )}
+
+            <button
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+              onClick={handleClear}
+            >
+              <TrashIcon className="w-5 h-5" />
+              Clear
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

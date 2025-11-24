@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Table from '../components/Table'
 import * as yaml from 'js-yaml'
 import config from '../config.json'
+import { ServerStackIcon, FunnelIcon } from '@heroicons/react/24/outline'
 
 type Props = {
   selected: string
@@ -110,19 +111,36 @@ const Home = ({ selected }: Props) => {
   }
 
   return (
-    <div>
-      <header className="text-3xl font-semibold text-center py-6 text-gray-800 dark:text-white">
-        {dashboardHeader}
-      </header>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+            <ServerStackIcon className="w-6 h-6" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {dashboardHeader}
+          </h1>
+        </div>
+        <p className="text-gray-500 dark:text-gray-400 ml-11">
+          Monitor and manage your Kubernetes resources
+        </p>
+      </div>
 
+      {/* Controls Section */}
       {namespaceDropdownEnabled && (
-        <div className="flex justify-start px-6 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6 flex items-center gap-4">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+            <FunnelIcon className="w-5 h-5" />
+            <span className="font-medium">Filters:</span>
+          </div>
+
           <div className="flex items-center gap-2">
-            <label className="text-gray-700 dark:text-gray-300 font-medium">Namespace:</label>
+            <label className="text-sm text-gray-500 dark:text-gray-400">Namespace</label>
             <select
               value={selectedNamespace}
               onChange={handleNamespaceChange}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              className="pl-3 pr-8 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
             >
               {availableNamespaces.map((ns) => (
                 <option key={ns} value={ns}>
@@ -134,9 +152,28 @@ const Home = ({ selected }: Props) => {
         </div>
       )}
 
-      {loading && <div className="text-center py-4 text-gray-600 dark:text-gray-400">Loading...</div>}
-      {error && <div className="text-center py-4 text-red-600">{error}</div>}
-      {!loading && !error && <Table columns={columns} data={data} />}
+      {/* Content Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-h-[400px]">
+        {loading && (
+          <div className="flex flex-col items-center justify-center h-64 gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-gray-500 dark:text-gray-400">Loading dashboard data...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex flex-col items-center justify-center h-64 gap-3 text-red-500">
+            <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-full">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && <Table columns={columns} data={data} />}
+      </div>
     </div>
   )
 }
