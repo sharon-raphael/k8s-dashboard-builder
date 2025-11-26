@@ -29,8 +29,10 @@ func NewConfigStore() *ConfigStore {
         field: "metadata.namespace"
       - header: "Status"
         field: "status.phase"
-      - header: "image"
+      - header: "Version"
         field: "spec.containers[0].image"
+        processors:
+        - regex: ".*:(.*)$"
   - name: "nodes-info"
     header: "Nodes Information Dashboard"
     panels:

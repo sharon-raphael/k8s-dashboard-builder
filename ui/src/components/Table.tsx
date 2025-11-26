@@ -3,6 +3,7 @@ import { ChevronUpDownIcon } from '@heroicons/react/24/outline'
 type Column = {
   header: string
   field: string
+  processors?: { regex?: string }[]
 }
 
 type Props = {

@@ -76,7 +76,10 @@ config:
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `header` | string | Yes | Column header text displayed in the table. |
+| `header` | string | Yes | Column header text displayed in the table. |
 | `field` | string | Yes | JSON path to the field in the Kubernetes resource. Supports nested fields (e.g., `metadata.name`) and array indexing (e.g., `spec.containers[0].image`). |
+| `processors` | array | No | List of processors to apply to the field value. Currently supports `regex`. |
+| `processors[].regex` | string | No | Regex expression to apply. If capturing groups are used, the first group is returned; otherwise, the whole match is returned. |
 
 ### Field Path Examples
 
@@ -112,6 +115,10 @@ config:
         field: "status.phase"
       - header: "Image"
         field: "spec.containers[0].image"
+      - header: "Image Tag"
+        field: "spec.containers[0].image"
+        processors:
+        - regex: ":(.*)$"
   
   - name: "nodes-info"
     header: "Nodes Information Dashboard"

@@ -15,7 +15,43 @@ import {
 
 const fallbackYaml = `# Kubernetes Dashboard Builder Configuration
 config:
-  timezone: UTC`
+  timezone: UTC
+  dashboards:
+  - name: "pods-info"
+    header: "Pods status Dashboard"
+    panels:
+    - type: "table"
+      data_source: "kubernetes"
+      api: pods
+      version: v1
+      query: ""
+      namespace: "kube-infra"
+      namespace_dropdown_enabled: true
+      columns:
+      - header: "Name"
+        field: "metadata.name"
+      - header: "Namespace"
+        field: "metadata.namespace"
+      - header: "Status"
+        field: "status.phase"
+      - header: "Version"
+        field: "spec.containers[0].image"
+        processors:
+        - regex: ".*:(.*)$"
+  - name: "nodes-info"
+    header: "Nodes Information Dashboard"
+    panels:
+    - type: "table"
+      data_source: "kubernetes"
+      api: nodes
+      version: v1
+      query: ""
+      namespace: ""
+      columns:
+      - header: "Name"
+        field: "metadata.name"
+      - header: "Instance Group"
+        field: "metadata.labels.instancegroup"`
 
 const Config = () => {
   const [editable, setEditable] = useState(false)

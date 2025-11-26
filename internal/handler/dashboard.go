@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sharon-raphael/k8s-dashboard-builder/internal/k8s"
@@ -37,9 +39,13 @@ func (h *DashboardHandler) GetDashboardData(c *gin.Context) {
 
 	// 2. Parse Config to find dashboard definition
 	// We define a minimal struct to parse just what we need
+	type Processor struct {
+		Regex string `yaml:"regex" json:"regex"`
+	}
 	type Column struct {
-		Header string `yaml:"header" json:"header"`
-		Field  string `yaml:"field" json:"field"`
+		Header     string      `yaml:"header" json:"header"`
+		Field      string      `yaml:"field" json:"field"`
+		Processors []Processor `yaml:"processors" json:"processors"`
 	}
 	type Panel struct {
 		Type                     string   `yaml:"type"`
@@ -103,6 +109,36 @@ func (h *DashboardHandler) GetDashboardData(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch k8s data", "details": err.Error()})
 		return
+	}
+
+	// 4. Apply Processors
+	for _, row := range data {
+		for _, col := range panel.Columns {
+			if len(col.Processors) > 0 {
+				val, ok := row[col.Field]
+				if !ok {
+					continue
+				}
+				strVal := fmt.Sprintf("%v", val)
+
+				for _, p := range col.Processors {
+					if p.Regex != "" {
+						re, err := regexp.Compile(p.Regex)
+						if err != nil {
+							fmt.Printf("Invalid regex %q for column %q: %v\n", p.Regex, col.Header, err)
+							continue
+						}
+						matches := re.FindStringSubmatch(strVal)
+						if len(matches) > 1 {
+							strVal = matches[1]
+						} else if len(matches) > 0 {
+							strVal = matches[0]
+						}
+					}
+				}
+				row[col.Field] = strVal
+			}
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
