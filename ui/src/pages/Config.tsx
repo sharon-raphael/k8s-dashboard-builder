@@ -8,16 +8,21 @@ import {
   CheckIcon,
   TrashIcon,
   DocumentTextIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline'
 
-const fallbackYaml = `# Kubernetes Dashboard Builder Configuration`
+const fallbackYaml = `# Kubernetes Dashboard Builder Configuration
+config:
+  timezone: UTC`
 
 const Config = () => {
   const [editable, setEditable] = useState(false)
   const [yamlText, setYamlText] = useState(fallbackYaml)
   const [isValidYaml, setIsValidYaml] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [copied, setCopied] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -109,6 +114,12 @@ const Config = () => {
     }
   }
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(yamlText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -139,6 +150,22 @@ const Config = () => {
               <ArrowUpTrayIcon className="w-4 h-4" />
               Export
             </button>
+            <button
+              onClick={handleCopy}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+            >
+              {copied ? (
+                <>
+                  <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-500" />
+                  <span className="text-green-600 dark:text-green-400">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <ClipboardDocumentIcon className="w-4 h-4" />
+                  Copy
+                </>
+              )}
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -160,15 +187,6 @@ const Config = () => {
             readOnly={!editable}
             spellCheck={false}
           />
-
-          {!editable && (
-            <div className="absolute inset-0 bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
-              <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                <PencilSquareIcon className="w-5 h-5 text-gray-500" />
-                <span className="text-gray-600 dark:text-gray-300 font-medium">Read-only mode</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer / Actions */}
@@ -194,8 +212,8 @@ const Config = () => {
             ) : (
               <button
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium shadow-sm transition-all ${isValidYaml
-                    ? 'bg-green-600 hover:bg-green-700 hover:shadow'
-                    : 'bg-gray-400 cursor-not-allowed'
+                  ? 'bg-green-600 hover:bg-green-700 hover:shadow'
+                  : 'bg-gray-400 cursor-not-allowed'
                   }`}
                 onClick={handleSave}
                 disabled={!isValidYaml}

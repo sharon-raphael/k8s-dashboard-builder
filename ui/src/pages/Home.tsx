@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Table from '../components/Table'
 import * as yaml from 'js-yaml'
 import config from '../config.json'
-import { ServerStackIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { FunnelIcon, CameraIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 type Props = {
   selected: string
@@ -17,6 +19,49 @@ const Home = ({ selected }: Props) => {
   const [namespaceDropdownEnabled, setNamespaceDropdownEnabled] = useState(false)
   const [availableNamespaces, setAvailableNamespaces] = useState<string[]>([])
   const [selectedNamespace, setSelectedNamespace] = useState('')
+  const [timezone, setTimezone] = useState('UTC')
+  const [currentTime, setCurrentTime] = useState('')
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const options: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: timezone,
+        timeZoneName: 'short'
+      }
+      // Format: DD-MM-YYYY HH:MM AM/PM <timezone>
+      // Intl.DateTimeFormat with 'short' gives something like "11/25/2025, 10:30 PM GMT+5:30" or "IST" depending on browser/locale
+      // We need to manually construct "DD-MM-YYYY" because standard locales are usually MM/DD or YYYY-MM-DD
+
+      try {
+        const formatter = new Intl.DateTimeFormat('en-GB', options)
+        const parts = formatter.formatToParts(now)
+
+        const day = parts.find(p => p.type === 'day')?.value
+        const month = parts.find(p => p.type === 'month')?.value
+        const year = parts.find(p => p.type === 'year')?.value
+        const hour = parts.find(p => p.type === 'hour')?.value
+        const minute = parts.find(p => p.type === 'minute')?.value
+        const dayPeriod = parts.find(p => p.type === 'dayPeriod')?.value?.toUpperCase()
+        const timeZoneName = parts.find(p => p.type === 'timeZoneName')?.value
+
+        setCurrentTime(`${day}-${month}-${year} ${hour}:${minute} ${dayPeriod} ${timeZoneName}`)
+      } catch (e) {
+        // Fallback if timezone is invalid
+        setCurrentTime(now.toLocaleString())
+      }
+    }
+
+    updateTime()
+    const interval = setInterval(updateTime, 1000) // Update every second to be accurate, though minute is requested
+    return () => clearInterval(interval)
+  }, [timezone])
 
   // Fetch namespaces when dropdown is enabled
   useEffect(() => {
@@ -43,7 +88,7 @@ const Home = ({ selected }: Props) => {
       setError('')
       try {
         // 1. Fetch Config for Header (Optimally this should be one call, but keeping existing logic + new)
-        const resConfig = await fetch(`${config.apiHost}/api/config`)
+        const resConfig = await fetch(`${config.apiHost}/api/config`, { cache: 'no-store' })
         const dataConfig = await resConfig.json()
         const parsed: any = yaml.load(dataConfig.config)
         const dashboards = parsed?.config?.dashboards || []
@@ -51,6 +96,20 @@ const Home = ({ selected }: Props) => {
         if (match) {
           setDashboardHeader(match.header || 'Dashboard')
         }
+
+        // Helper to find timezone in object (case-insensitive)
+        const findTimezone = (obj: any): string | undefined => {
+          if (!obj) return undefined
+          const keys = Object.keys(obj)
+          const key = keys.find(k => k.toLowerCase() === 'timezone')
+          return key ? obj[key] : undefined
+        }
+
+        // Set timezone from config or default
+        const configTimezone = parsed?.config ? findTimezone(parsed.config) : undefined
+        const rootTimezone = findTimezone(parsed)
+
+        setTimezone(configTimezone || rootTimezone || 'UTC')
 
         // 2. Fetch Data
         const url = namespace
@@ -110,26 +169,84 @@ const Home = ({ selected }: Props) => {
     fetchData()
   }
 
+  const captureRef = useRef<HTMLDivElement>(null)
+
+  const handleScreenshot = async () => {
+    if (!captureRef.current) return
+    try {
+      const isDarkMode = document.documentElement.classList.contains('dark')
+      const backgroundColor = isDarkMode ? '#111827' : '#ffffff' // gray-900 or white
+
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: backgroundColor
+      })
+      const image = canvas.toDataURL('image/png')
+      const link = document.createElement('a')
+      link.href = image
+      link.download = `dashboard-${selected}-${new Date().toISOString()}.png`
+      link.click()
+    } catch (err) {
+      console.error('Failed to capture screenshot', err)
+    }
+  }
+
+  const handleExportPDF = async () => {
+    if (!captureRef.current) return
+    try {
+      const isDarkMode = document.documentElement.classList.contains('dark')
+      const backgroundColor = isDarkMode ? '#111827' : '#ffffff'
+
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: backgroundColor
+      })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      })
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height)
+      pdf.save(`dashboard-${selected}-${new Date().toISOString()}.pdf`)
+    } catch (err) {
+      console.error('Failed to export PDF', err)
+    }
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" ref={captureRef}>
       {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
-            <ServerStackIcon className="w-6 h-6" />
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {dashboardHeader}
+            </h1>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {dashboardHeader}
-          </h1>
+
         </div>
-        <p className="text-gray-500 dark:text-gray-400 ml-11">
-          Monitor and manage your Kubernetes resources
-        </p>
+
+        <div className="flex gap-2 ml-11 sm:ml-0" data-html2canvas-ignore>
+          <button
+            onClick={handleScreenshot}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm font-medium"
+          >
+            <CameraIcon className="w-4 h-4" />
+            Screenshot
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm font-medium"
+          >
+            <DocumentArrowDownIcon className="w-4 h-4" />
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Controls Section */}
       {namespaceDropdownEnabled && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6 flex items-center gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6 flex items-center gap-4" data-html2canvas-ignore>
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
             <FunnelIcon className="w-5 h-5" />
             <span className="font-medium">Filters:</span>
@@ -174,6 +291,14 @@ const Home = ({ selected }: Props) => {
 
         {!loading && !error && <Table columns={columns} data={data} />}
       </div>
+
+      {!loading && !error && (
+        <div className="mt-4 px-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            {currentTime}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
