@@ -107,6 +107,7 @@ func (h *DashboardHandler) GetDashboardData(c *gin.Context) {
 
 	data, err := h.k8sService.FetchResources(c.Request.Context(), panel.Version, panel.API, namespace, fields)
 	if err != nil {
+		fmt.Printf("Error fetching k8s data: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch k8s data", "details": err.Error()})
 		return
 	}
