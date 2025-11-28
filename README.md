@@ -1,4 +1,4 @@
-# k8s-dashboard-builder
+# Kudabu - The Kubernetes Dashboard Builder
 Build your Kubernetes dashboard from a simple YAML configuration
 
 ## Getting Started

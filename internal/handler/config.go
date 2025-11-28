@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sharon-raphael/k8s-dashboard-builder/internal/store"
+	"github.com/sharon-raphael/kudabu/internal/store"
 	"gopkg.in/yaml.v3"
 )
 

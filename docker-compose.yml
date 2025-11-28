@@ -1,5 +1,6 @@
 services:
   backend:
+    image: kudabu-backend
     build:
       context: .
       dockerfile: Dockerfile

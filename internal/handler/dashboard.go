@@ -6,7 +6,7 @@ import (
 	"regexp"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sharon-raphael/k8s-dashboard-builder/internal/k8s"
+	"github.com/sharon-raphael/kudabu/internal/k8s"
 	"gopkg.in/yaml.v3"
 )
 

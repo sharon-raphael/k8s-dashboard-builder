@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/sharon-raphael/k8s-dashboard-builder/internal/handler"
+	"github.com/sharon-raphael/kudabu/internal/handler"
 )
 
 func main() {
