@@ -1,0 +1,25 @@
+<svg width="500" height="150" viewBox="0 0 500 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: bold; fill: #326CE5; }
+    .subtext { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 400; fill: #326CE5; }
+  </style>
+
+  <g transform="translate(20, 25)">
+    <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#326CE5" fill-opacity="0.1"/>
+    <path d="M50 5L88.9711 27.5V72.5L50 95L11.0289 72.5V27.5L50 5Z" stroke="#326CE5" stroke-width="4"/>
+    
+    <rect x="28" y="30" width="18" height="18" rx="2" fill="#326CE5"/>
+    <rect x="52" y="30" width="18" height="18" rx="2" fill="#326CE5"/>
+    <rect x="28" y="54" width="18" height="18" rx="2" fill="#326CE5"/>
+    <rect x="52" y="54" width="18" height="18" rx="2" fill="#F59E0B"/> <path d="M50 5V22" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M88.97 27.5L74 36" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M88.97 72.5L74 64" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M50 95V78" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M11.03 72.5L26 64" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M11.03 27.5L26 36" stroke="#326CE5" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <text x="120" y="100" font-size="72" class="text">Kudabu</text>
+  
+  <text x="125" y="124" font-size="18" class="subtext" textLength="260.5" lengthAdjust="spacingAndGlyphs">Kubernetes Dashboard Builder</text>
+</svg>

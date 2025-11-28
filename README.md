@@ -1,13 +1,17 @@
-# Kudabu - The Kubernetes Dashboard Builder
+<div align="center">
+  <img src="ui/public/kudabu.svg" alt="Kudabu Logo" width="500" />
+</div>
+
+# 🚀 Kudabu - The Kubernetes Dashboard Builder
 Build your Kubernetes dashboard from a simple YAML configuration
 
-## Getting Started
+## 🏁 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 - Go 1.21+
 - Node.js & npm
 
-### Running the Application
+### ▶️ Running the Application
 
 1.  **Start the Backend Server**
     ```bash
@@ -27,30 +31,30 @@ Build your Kubernetes dashboard from a simple YAML configuration
 3.  **Access the Dashboard**
     Open `http://localhost:5173` on your browser to access the dashboard.
 
-## Configuration
+## ⚙️ Configuration
 
 The dashboard is configured using a YAML file that defines dashboards and their panels. You can edit the configuration through the web UI (Config page) or by modifying the default configuration in `internal/store/store.go`.
 
-### Configuration Structure
+### 🏗️ Configuration Structure
 
 ```yaml
 config:
   dashboards:
-    - name: "dashboard-name"
-      header: "Dashboard Title"
-      panels:
-        - type: "table"
-          data_source: "kubernetes"
-          api: "resource-type"
-          version: "api-version"
-          namespace: "namespace-name"
-          namespace_dropdown_enabled: true
-          columns:
-            - header: "Column Header"
-              field: "field.path"
+  - name: "dashboard-name"
+    header: "Dashboard Title"
+    panels:
+    - type: "table"
+      data_source: "kubernetes"
+      api: "resource-type"
+      version: "api-version"
+      namespace: "namespace-name"
+      namespace_dropdown_enabled: true
+      columns:
+      - header: "Column Header"
+        field: "field.path"
 ```
 
-### Dashboard Configuration Options
+### 📊 Dashboard Configuration Options
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -58,7 +62,7 @@ config:
 | `header` | string | Yes | Display title shown at the top of the dashboard page. |
 | `panels` | array | Yes | List of panel configurations (currently supports one panel per dashboard). |
 
-### Panel Configuration Options
+### 🖼️ Panel Configuration Options
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -71,7 +75,7 @@ config:
 | `query` | string | No | Reserved for future use. Currently not implemented. |
 | `columns` | array | Yes | List of column definitions for the table. |
 
-### Column Configuration Options
+### 📝 Column Configuration Options
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -81,7 +85,7 @@ config:
 | `processors` | array | No | List of processors to apply to the field value. Currently supports `regex`. |
 | `processors[].regex` | string | No | Regex expression to apply. If capturing groups are used, the first group is returned; otherwise, the whole match is returned. |
 
-### Field Path Examples
+### 🔍 Field Path Examples
 
 | Field Path | Description |
 |------------|-------------|
@@ -92,7 +96,7 @@ config:
 | `spec.containers[0].image` | Image of the first container |
 | `spec.nodeName` | Node where the pod is running |
 
-### Example Configuration
+### 💡 Example Configuration
 
 ```yaml
 config:
@@ -135,7 +139,7 @@ config:
         field: "metadata.labels.instancegroup"
 ```
 
-## Features
+## ✨ Features
 
 - **Dynamic Dashboard Creation**: Define dashboards using simple YAML configuration
 - **Kubernetes Integration**: Query any Kubernetes resource using the dynamic client

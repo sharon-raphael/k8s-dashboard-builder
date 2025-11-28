@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import * as yaml from 'js-yaml'
 import config from '../config.json'
 import DarkModeToggle from './DarkModeToggle'
-import { HomeIcon, Cog6ToothIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
+import { HomeIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 
 type Props = {
   selected: string
@@ -43,12 +43,7 @@ const Navbar = ({ selected, setSelected }: Props) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo / Brand */}
           <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-              <Squares2X2Icon className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              K8s Dashboard
-            </h1>
+            <img src="/kudabu.svg" alt="Kudabu Logo" className="h-14 w-auto" />
           </div>
 
           {/* Center: Dashboard Selector */}

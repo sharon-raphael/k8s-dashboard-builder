@@ -13,7 +13,7 @@ import {
   ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline'
 
-const fallbackYaml = `# Kubernetes Dashboard Builder Configuration
+const fallbackYaml = `# Kudabu Configuration
 config:
   timezone: UTC
   dashboards:
@@ -106,7 +106,7 @@ const Config = () => {
   const handleExport = () => {
     const blob = new Blob([yamlText], { type: 'text/yaml' })
     const date = new Date()
-    const filename = `k8s-dashboard-builder-config-${date
+    const filename = `kudabu-config-${date
       .toLocaleDateString('en-GB')
       .split('/')
       .join('')}.yaml`
