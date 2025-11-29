@@ -147,3 +147,11 @@ config:
 - **Dark Mode**: Toggle between light and dark themes
 - **Configuration Management**: Edit and save configurations through the web UI
 - **Flexible Field Selection**: Extract any field from Kubernetes resources using JSON paths
+
+## 🚀 Enhancements
+
+- **Authentication & Authorization**: Implement login (e.g., OIDC, OAuth2) to secure the dashboard.
+- **Multi-Cluster Support**: Allow configuring and switching between multiple Kubernetes clusters.
+- **Search & Filtering**: Add global search or advanced filtering options for the tables.
+- **Unit Tests**: Add unit tests for both backend and frontend components.
+- **CI/CD Pipeline**: Set up GitHub Actions for automated building and testing.
