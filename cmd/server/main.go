@@ -1,12 +1,16 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sharon-raphael/kudabu/internal/handler"
+	"github.com/sharon-raphael/kudabu/internal/version"
 )
 
 func main() {
+	log.Printf("Starting Kudabu version %s", version.Version)
 	r := gin.Default()
 
 	r.Use(cors.Default()) // allows all origins by default
