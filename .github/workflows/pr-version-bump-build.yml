@@ -1,0 +1,107 @@
+name: PR Version Bump and Build
+
+on:
+  pull_request:
+    types: [labeled]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  bump-and-build:
+    if: github.event.label.name == 'bump-version'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Bump Version
+        id: bump_version
+        run: |
+          # Read current version from package.json
+          CURRENT_VERSION=$(jq -r .version ui/package.json)
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Split version into array
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+          
+          # Increment minor version
+          NEW_MINOR=$((MINOR + 1))
+          NEW_VERSION="$MAJOR.$NEW_MINOR.0"
+          echo "New version: $NEW_VERSION"
+          
+          # Update ui/package.json
+          jq --arg v "$NEW_VERSION" '.version = $v' ui/package.json > ui/package.json.tmp && mv ui/package.json.tmp ui/package.json
+          
+          # Update internal/version/version.go
+          sed -i 's/Version = ".*"/Version = "'"$NEW_VERSION"'"/' internal/version/version.go
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push Changes
+        run: |
+          NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
+          
+          git add ui/package.json internal/version/version.go
+          git commit -m "Bump version to v$NEW_VERSION"
+          git push
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Backend
+        id: meta_backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+          tags: |
+            type=raw,value=v${{ steps.bump_version.outputs.new_version }}
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta_backend.outputs.tags }}
+          labels: ${{ steps.meta_backend.outputs.labels }}
+
+      - name: Extract metadata (tags, labels) for Frontend
+        id: meta_frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          tags: |
+            type=raw,value=v${{ steps.bump_version.outputs.new_version }}
+
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ui
+          file: ui/Dockerfile
+          push: true
+          tags: ${{ steps.meta_frontend.outputs.tags }}
+          labels: ${{ steps.meta_frontend.outputs.labels }}
